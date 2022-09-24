@@ -50,6 +50,10 @@
 
     </el-form>
   </div>
+  <!-- 环境变量的作用
+  1.正常公司中有几个环境4开发dev测试test预发uat线上Pro
+  2.,在项目里如何配置这几个环境
+  通过.env配置base api -->
 </template>
 
 <script>
