@@ -1,47 +1,29 @@
 <template>
   <div class="login-container">
-    <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
+    <el-form ref="loginForm" class="login-form" auto-complete="on" label-position="left" :model="loginData" :rules="rules">
 
       <div class="title-container">
         <h3 class="title"><img src="@/assets/common/login-logo.png" alt=""></h3>
       </div>
 
-      <el-form-item prop="username">
+      <!-- 账号框 -->
+      <el-form-item prop="mobile">
         <span class="svg-container">
           <svg-icon icon-class="user" />
         </span>
-        <el-input
-          ref="username"
-          v-model="loginForm.username"
-          placeholder="Username"
-          name="username"
-          type="text"
-          tabindex="1"
-          auto-complete="on"
-        />
+        <el-input v-model="loginData.mobile" />
       </el-form-item>
-
+      <!-- 密码框 -->
       <el-form-item prop="password">
         <span class="svg-container">
           <svg-icon icon-class="password" />
         </span>
-        <el-input
-          :key="passwordType"
-          ref="password"
-          v-model="loginForm.password"
-          :type="passwordType"
-          placeholder="Password"
-          name="password"
-          tabindex="2"
-          auto-complete="on"
-          @keyup.enter.native="handleLogin"
-        />
-        <span class="show-pwd" @click="showPwd">
+        <el-input ref="pwd" v-model="loginData.password" :type="passwordType" />
+        <span class="svg-container" @click="showPwd">
           <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
         </span>
       </el-form-item>
-
-      <el-button class="loginBtn" :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">Login</el-button>
+      <el-button class="loginBtn" :loading="loading" @click="login">Login</el-button>
 
       <div class="tips">
         <span style="margin-right:20px;">账号: 13800000002</span>
@@ -57,73 +39,68 @@
 </template>
 
 <script>
-import { validUsername } from '@/utils/validate'
-
+import { validPhone } from '@/utils/validate'
 export default {
   name: 'Login',
   data() {
-    const validateUsername = (rule, value, callback) => {
-      if (!validUsername(value)) {
-        callback(new Error('Please enter the correct user name'))
-      } else {
+    const phoneValid = (rules, value, callback) => {
+      if (validPhone(value)) {
         callback()
-      }
-    }
-    const validatePassword = (rule, value, callback) => {
-      if (value.length < 6) {
-        callback(new Error('The password can not be less than 6 digits'))
       } else {
-        callback()
+        callback(new Error('格式不正确'))
       }
     }
     return {
-      loginForm: {
-        username: 'admin',
-        password: '111111'
-      },
-      loginRules: {
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        password: [{ required: true, trigger: 'blur', validator: validatePassword }]
+      passwordType: 'password',
+      loginData: {
+        mobile: '13800000002',
+        password: '123456'
       },
       loading: false,
-      passwordType: 'password',
-      redirect: undefined
-    }
-  },
-  watch: {
-    $route: {
-      handler: function(route) {
-        this.redirect = route.query && route.query.redirect
-      },
-      immediate: true
+      rules: {
+        mobile: [
+          {
+            required: true,
+            message: '手机号必填',
+            trigger: 'blur'
+          },
+          {
+            validator: phoneValid,
+            trigger: 'blur'
+          }
+        ],
+        password: [
+          {
+            required: true,
+            message: '密码必填',
+            trigger: 'blur'
+          },
+          {
+            min: 6,
+            max: 16,
+            message: '密码格式不正确',
+            trigger: 'blur'
+          }
+        ]
+      }
     }
   },
   methods: {
     showPwd() {
-      if (this.passwordType === 'password') {
-        this.passwordType = ''
-      } else {
-        this.passwordType = 'password'
-      }
+      this.passwordType = this.passwordType === 'password' ? '' : 'password'
       this.$nextTick(() => {
-        this.$refs.password.focus()
+        this.$refs.pwd.focus()
       })
     },
-    handleLogin() {
-      this.$refs.loginForm.validate(valid => {
-        if (valid) {
-          this.loading = true
-          this.$store.dispatch('user/login', this.loginForm).then(() => {
-            this.$router.push({ path: this.redirect || '/' })
-            this.loading = false
-          }).catch(() => {
-            this.loading = false
-          })
-        } else {
-          console.log('error submit!!')
-          return false
-        }
-      })
+    async login() {
+      try {
+        await this.$refs.loginForm.validate()
+        this.loading = true
+        await this.$store.dispatch('user/asyncLogin', this.loginData)
+        this.$router.push('/')
+      } finally {
+        this.loading = false
+      }
     }
   }
 }
@@ -133,7 +110,7 @@ export default {
 /* 修复input 背景不协调 和光标变色 */
 /* Detail see https://github.com/PanJiaChen/vue-element-admin/pull/927 */
 
-$bg:#283443;
+$bg:#d4e3ff;
 $light_gray:#68b0fe;
 $cursor: #fff;
 
@@ -181,12 +158,16 @@ $cursor: #fff;
   height: 64px;
   line-height: 32px;
   font-size: 24px;
+  width:100%;
+  margin-bottom:30px;
+  border: unset;
+  color:#fff
 }
 }
 </style>
 
 <style lang="scss" scoped>
-$bg:#2d3a4b;
+$bg:#d4e3ff;
 $dark_gray:#889aa4;
 $light_gray:#68b0fe;
 
