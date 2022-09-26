@@ -42,10 +42,18 @@ export default {
       }
     }
   },
+  async created() {
+    // this.getUserInfo()
+    await this.$store.dispatch('user/asyncGetUserInfo')
+  },
   methods: {
     handleClickOutside() {
       this.$store.dispatch('app/closeSideBar', { withoutAnimation: false })
     }
+    // async getUserInfo() {
+    //   console.log(1)
+    //   await this.$store.dispatch('user/asyncGetUserInfo')
+    // }
   }
 }
 </script>

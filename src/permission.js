@@ -6,6 +6,9 @@ const whiteList = ['/login', '/404']
 router.beforeEach((to, from, next) => {
   nprogress.start()
   if (store.getters.token) {
+    if (!store.getters.userId) {
+      store.dispatch('user/asyncGetUserInfo')
+    }
     if (to.path === '/login') {
       next('/')
     } else {
