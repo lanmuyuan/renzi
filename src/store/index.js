@@ -10,7 +10,7 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
   plugins: [
     createPersistedState({
-      paths: ['user.token']
+      paths: ['user.token', 'user.hrsaastime']
     })
   ],
   modules: {

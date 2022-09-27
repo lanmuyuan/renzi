@@ -2,6 +2,13 @@
 import axios from 'axios'
 import { Message } from 'element-ui'
 import store from '@/store'
+import router from '@/router'
+const TimeOut = 3600
+function IscheckTimeOut() {
+  const currentTime = Date.now()
+  const timeStamp = (currentTime - store.getters.hrsaastime) / 1000
+  return timeStamp > TimeOut
+}
 // 通过axios创建axios实例
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API, // 基准地址
@@ -9,6 +16,11 @@ const service = axios.create({
 })
 service.interceptors.request.use(config => {
   if (store.getters.token) {
+    if (IscheckTimeOut()) {
+      store.dispatch('user/logout')
+      router.push('/login')
+      return Promise.reject(new Error('token超时'))
+    }
     config.headers['Authorization'] = `Bearer ${store.getters.token}`
   }
   return config
@@ -28,7 +40,13 @@ service.interceptors.response.use(response => {
     return Promise.reject(new Error(message))
   }
 }, error => {
-  Message.error(error.message)
+  if (error.response && error.response.status === 401) {
+    store.dispatch('user/logout')
+    router.push('/login')
+    Message.error('token超时')
+  } else {
+    Message.error(error.message)
+  }
   return Promise.reject(error)
 })
 export default service
