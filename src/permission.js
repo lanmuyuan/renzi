@@ -3,11 +3,11 @@ import store from '@/store'
 import nprogress from 'nprogress'
 import 'nprogress/nprogress.css'
 const whiteList = ['/login', '/404']
-router.beforeEach((to, from, next) => {
+router.beforeEach(async(to, from, next) => {
   nprogress.start()
   if (store.getters.token) {
     if (!store.getters.userId) {
-      store.dispatch('user/asyncGetUserInfo')
+      await store.dispatch('user/asyncGetUserInfo')
     }
     if (to.path === '/login') {
       next('/')
