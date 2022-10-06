@@ -30,6 +30,7 @@
 </template>
 
 <script>
+import { delDepartments } from '@/api/departments'
 export default {
   props: {
     data: {
@@ -47,8 +48,17 @@ export default {
         this.$emit('addDept', this.data)
       } else if (type === 'edit') {
         // 编辑
+        this.$emit('editDept', this.data)
       } else {
         // 删除
+        this.$confirm('是否删除该部门', '提示', {
+          type: 'warning'
+        }).then(res => {
+          return delDepartments(this.data.id)
+        }).then(res => {
+          this.$message.success('删除成功')
+          this.$emit('refreshList')
+        })
       }
     }
   }

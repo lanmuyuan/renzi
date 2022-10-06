@@ -1,13 +1,13 @@
 <template>
-  <div class="departments-container">
+  <div v-loading="loading" class="departments-container">
     <el-card class="tree-card">
       <!-- 用了一个行列布局 -->
       <TreeTool :data="company" :is-root="false" @addDept="handleAddDept" />
     </el-card>
     <el-tree :data="departs" :props="defaultProps" :default-expand-all="true">
-      <TreeTool slot-scope="{data}" :data="data" :is-root="true" @addDept="handleAddDept" />
+      <TreeTool slot-scope="{data}" :data="data" :is-root="true" @addDept="handleAddDept" @editDept="handleEditDept" @refreshList="getDepartments" />
     </el-tree>
-    <add-department :show-dialog.sync="showDialog" :tree-node="treeNode" />
+    <add-department ref="addDept" :show-dialog.sync="showDialog" :tree-node="treeNode" />
   </div>
 </template>
 
@@ -26,7 +26,8 @@ export default {
       company: {},
       departs: [],
       showDialog: false,
-      treeNode: {}
+      treeNode: {},
+      loading: false
     }
   },
   created() {
@@ -34,13 +35,23 @@ export default {
   },
   methods: {
     async getDepartments() {
-      const { depts, companyManage, companyName } = await getDepartments()
-      this.company = { name: companyName, manager: companyManage, id: '' }
-      this.departs = tranListToTreeData(depts, '')
+      try {
+        this.loading = true
+        const { depts, companyManage, companyName } = await getDepartments()
+        this.company = { name: companyName, manager: companyManage, id: '' }
+        this.departs = tranListToTreeData(depts, '')
+      } finally {
+        this.loading = false
+      }
     },
     handleAddDept(data) {
       this.showDialog = true
-      this.treeNode = data
+      this.treeNode = { ...data }
+    },
+    handleEditDept(data) {
+      this.showDialog = true
+      this.treeNode = { ...data }
+      this.$refs.addDept.formDate = { ...data }
     }
   }
 }
