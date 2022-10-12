@@ -7,14 +7,17 @@
 //     })
 //   }
 // }
+import * as filter from '@/filters'
 const fn = require.context('./', true, /\.vue$/)
 console.dir(fn)
 const components = fn.keys().map(ele => {
   return fn(ele)
 })
-console.log(components)
 export default (Vue) => {
   components.forEach(element => {
     Vue.component(element.default.name, element.default)
+  })
+  Object.keys(filter).forEach(ele => {
+    Vue.filter(ele, filter[ele])
   })
 }
