@@ -50,3 +50,45 @@ export function importEmployee(data) {
     data
   })
 }
+
+/** *
+ *  读取用户详情的基础信息
+ * **/
+export function getPersonalDetail(id) {
+  return request({
+    url: `/employees/${id}/personalInfo`
+  })
+}
+
+/** *
+ *  保存用户详情的基础信息
+ * **/
+export function savePersonalDetail(data) {
+  return request({
+    url: `/employees/${data.userId}/personalInfo`,
+    method: 'PUT',
+    data
+  })
+}
+
+/** **
+ * 获取用户的岗位信息
+ *
+ * ****/
+export function getJobDetail(id) {
+  return request({
+    url: `/employees/${id}/jobs`
+  })
+}
+
+/** **
+ * 保存用户的岗位信息
+ *
+ * ****/
+export function saveJobDetail(data) {
+  return request({
+    url: `/employees/${data.userId}/jobs`,
+    method: 'PUT',
+    data
+  })
+}

@@ -14,6 +14,18 @@ export function getUserDetailById(id) {
     url: `/sys/user/${id}`
   })
 }
+/**
+ *  更新用户信息
+ * @param {Object} data
+ * @returns Promise
+ */
+export function saveUserDetailById(data) {
+  return request({
+    url: `/sys/user/${data.id}`,
+    method: 'put',
+    data
+  })
+}
 export function logout() {
 
 }
