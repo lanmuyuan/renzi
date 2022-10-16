@@ -15,9 +15,11 @@ import components from './components'
 import '@/icons' // icon
 import '@/permission' // permission control
 import * as directives from '@/directives'
+import Print from 'vue-print-nb'
 Object.keys(directives).forEach((ele) => {
   Vue.directive(ele, directives[ele])
 })
+Vue.use(Print)
 // set ElementUI lang to EN
 // Vue.use(ElementUI, { locale })
 // 如果想要中文版 element-ui，按如下方式声明

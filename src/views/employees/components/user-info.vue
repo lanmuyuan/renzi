@@ -1,5 +1,6 @@
 <template>
   <div class="user-info">
+    <i class="el-icon-printer" @click="$router.push('/employees/print/' + userId+'?type=job')" />
     <!-- 个人信息 -->
     <el-form label-width="220px">
       <!-- 工号 入职时间 -->
@@ -58,6 +59,7 @@
         <el-col :span="12">
           <el-form-item label="员工头像">
             <!-- 放置上传图片 -->
+            <UploadImg ref="uploadAvatar" :default-url="employeesAvatar" @onSuccess="uploadAvatarSuccess" />
           </el-form-item>
         </el-col>
       </el-row>
@@ -91,6 +93,7 @@
 
         <el-form-item label="员工照片">
           <!-- 放置上传图片 -->
+          <UploadImg ref="uploadEmployeesImg" :default-url="employeesImg" @onSuccess="uploadImgSuccess" />
         </el-form-item>
         <el-form-item label="国家/地区">
           <el-select v-model="formData.nationalArea" class="inputW2">
@@ -389,7 +392,11 @@
 import EmployeeEnum from '@/api/constant/employees'
 import { getUserDetailById, saveUserDetailById } from '@/api/user'
 import { getPersonalDetail, savePersonalDetail } from '@/api/empyolees'
+import UploadImg from '../../../components/uploadImg/index.vue'
 export default {
+  components: {
+    UploadImg
+  },
   data() {
     return {
       userId: this.$route.params.id,
@@ -457,7 +464,9 @@ export default {
         isThereAnyCompetitionRestriction: '', // 有无竞业限制
         proofOfDepartureOfFormerCompany: '', // 前公司离职证明
         remarks: '' // 备注
-      }
+      },
+      employeesAvatar: '',
+      employeesImg: ''
     }
   },
   created() {
@@ -468,13 +477,22 @@ export default {
     async loadUserInfo() {
       const res = await getUserDetailById(this.userId)
       this.userInfo = res
+      if (res.staffPhoto) {
+        this.employeesAvatar = res.staffPhoto
+      }
     },
     async loadPersonalDeetail() {
       const res = await getPersonalDetail(this.userId)
       this.formData = res
+      if (res.staffPhoto) {
+        this.employeesImg = res.staffPhoto
+      }
     },
     async savePersonalDetail() {
       try {
+        if (this.$refs.uploadEmployeesImg.loading) {
+          return this.$message('文件正在上传')
+        }
         await savePersonalDetail(this.formData)
         this.$message.success('保存成功')
       } catch (error) {
@@ -483,11 +501,21 @@ export default {
     },
     async saveUserDetailById() {
       try {
+        if (this.$refs.uploadAvatar.loading) {
+          return this.$message('文件正在上传')
+        }
         await saveUserDetailById(this.userInfo)
         this.$message.success('保存成功')
       } catch (error) {
+        console.log(error)
         this.$message.error('保存失败')
       }
+    },
+    uploadAvatarSuccess(data) {
+      this.userInfo.staffPhoto = data.imgUrl
+    },
+    uploadImgSuccess(data) {
+      this.formData.staffPhoto = data.imgUrl
     }
   }
 }
